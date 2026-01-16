@@ -143,8 +143,8 @@ async function renderGraph(graph: HTMLElement, fullSlug: FullSlug) {
     if (showTags) tags.forEach((tag) => neighbourhood.add(tag))
   }
 
-  // pages to exclude from graph
-  const excludeFromGraph = new Set(["index"])
+  // pages to exclude from graph (use "/" for index.md as it gets simplified)
+  const excludeFromGraph = new Set(["/", "index"])
 
   const nodes = [...neighbourhood]
     .filter((url) => !excludeFromGraph.has(url))
