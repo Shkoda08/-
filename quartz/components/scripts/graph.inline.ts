@@ -193,12 +193,36 @@ async function renderGraph(graph: HTMLElement, fullSlug: FullSlug) {
     {} as Record<(typeof cssVars)[number], string>,
   )
 
+  // surname color mapping (based on filename)
+  const surnameColors: Record<string, string> = {
+    "корнилов": "#e63946",    // red
+    "милованов": "#f1fa8c",   // yellow
+    "пархоменко": "#457b9d",  // blue
+    "тарасюк": "#2a9d8f",     // teal
+    "тингаев": "#ff9f1c",     // orange
+    "марченко": "#9b5de5",    // purple
+    "баженов": "#00b4d8",     // light blue
+    "головинск": "#f72585",   // pink (partial match for Головинский/Головинская)
+    "вагин": "#7209b7",       // dark purple
+    "шкирдов": "#4cc9f0",     // sky blue
+  }
+
   // calculate color
   const color = (d: NodeData) => {
     const isCurrent = d.id === slug
     if (isCurrent) {
       return computedStyleMap["--secondary"]
-    } else if (visited.has(d.id) || d.id.startsWith("tags/")) {
+    }
+
+    // check for surname match in the node ID (filename)
+    const nodeIdLower = d.id.toLowerCase()
+    for (const [surname, surnameColor] of Object.entries(surnameColors)) {
+      if (nodeIdLower.includes(surname)) {
+        return surnameColor
+      }
+    }
+
+    if (visited.has(d.id) || d.id.startsWith("tags/")) {
       return computedStyleMap["--tertiary"]
     } else {
       return computedStyleMap["--gray"]
