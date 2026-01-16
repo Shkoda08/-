@@ -143,18 +143,24 @@ async function renderGraph(graph: HTMLElement, fullSlug: FullSlug) {
     if (showTags) tags.forEach((tag) => neighbourhood.add(tag))
   }
 
-  const nodes = [...neighbourhood].map((url) => {
-    const text = url.startsWith("tags/") ? "#" + url.substring(5) : (data.get(url)?.title ?? url)
-    return {
-      id: url,
-      text,
-      tags: data.get(url)?.tags ?? [],
-    }
-  })
+  // pages to exclude from graph
+  const excludeFromGraph = new Set(["index"])
+
+  const nodes = [...neighbourhood]
+    .filter((url) => !excludeFromGraph.has(url))
+    .map((url) => {
+      const text = url.startsWith("tags/") ? "#" + url.substring(5) : (data.get(url)?.title ?? url)
+      return {
+        id: url,
+        text,
+        tags: data.get(url)?.tags ?? [],
+      }
+    })
+  const nodeIds = new Set(nodes.map((n) => n.id))
   const graphData: { nodes: NodeData[]; links: LinkData[] } = {
     nodes,
     links: links
-      .filter((l) => neighbourhood.has(l.source) && neighbourhood.has(l.target))
+      .filter((l) => nodeIds.has(l.source) && nodeIds.has(l.target))
       .map((l) => ({
         source: nodes.find((n) => n.id === l.source)!,
         target: nodes.find((n) => n.id === l.target)!,
